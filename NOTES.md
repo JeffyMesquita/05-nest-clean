@@ -142,3 +142,20 @@ import { PrismaService } from './prisma/prisma.service';
 })
 export class AppModule {}
 ```
+
+## 4. General Configs
+
+### 4.1. tsconfig.json
+
+- In `tsconfig.json` you can add:
+
+```json
+{
+  "compilerOptions": {
+    //...
+    "strict": true,
+    "strictNullChecks": true
+    //...
+  }
+}
+```
