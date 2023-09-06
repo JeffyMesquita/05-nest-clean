@@ -159,3 +159,19 @@ export class AppModule {}
   }
 }
 ```
+
+## 5. General Installation
+
+### 5.1. Install Bcryptjs
+
+- [Install Bcryptjs](https://www.npmjs.com/package/bcryptjs)
+
+```bash
+npm install bcryptjs
+```
+
+and
+
+```bash
+npm install @types/bcryptjs -D
+```
