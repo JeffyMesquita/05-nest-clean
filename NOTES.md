@@ -92,3 +92,53 @@ npx prisma migrate dev
 ```bash
 npx prisma studio
 ```
+
+### 3.2. Using Prisma Client
+
+- in `src` folder, create a folder `prisma` and inside create a file `prisma.service.ts` with the following content:
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
+
+@Injectable()
+export class PrismaService
+  extends PrismaClient
+  implements OnModuleInit, OnModuleDestroy
+{
+  constructor() {
+    // you can pass config here
+    super({
+      // log: ['query'] for debugging
+      log: ['error', 'warn', 'info', 'query'],
+    });
+  }
+
+  // this is required to make Prisma Client work
+  // in a multi-threaded context like NestJS application
+  onModuleInit() {
+    return this.$connect();
+  }
+
+  onModuleDestroy() {
+    return this.$disconnect();
+  }
+}
+```
+
+- in `src/app.module.ts` file, add the following code:
+
+```ts
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { PrismaService } from './prisma/prisma.service';
+
+@Module({
+  imports: [],
+  controllers: [AppController],
+  // add PrismaService to the providers array
+  providers: [AppService, PrismaService],
+})
+export class AppModule {}
+```
