@@ -143,6 +143,37 @@ import { PrismaService } from './prisma/prisma.service';
 export class AppModule {}
 ```
 
+### 3.3. Using Zod as a validation library Pipe(as a middleware)
+
+- After installing Zod, create a file `validation.pipe.ts` in the `src/pipes` folder with the following content:
+
+```ts
+import { BadRequestException, PipeTransform } from '@nestjs/common';
+import { ZodError, ZodSchema } from 'zod';
+import { fromZodError } from 'zod-validation-error';
+
+export class ZodValidationPipe implements PipeTransform {
+  constructor(private schema: ZodSchema) {}
+
+  transform(value: unknown) {
+    try {
+      this.schema.parse(value);
+      return value;
+    } catch (error) {
+      if (error instanceof ZodError) {
+        throw new BadRequestException({
+          message: 'Validation failed',
+          statusCode: 400,
+          errors: fromZodError(error),
+        });
+      }
+
+      throw new BadRequestException('Validation failed');
+    }
+  }
+}
+```
+
 ## 4. General Configs
 
 ### 4.1. tsconfig.json
@@ -174,4 +205,18 @@ and
 
 ```bash
 npm install @types/bcryptjs -D
+```
+
+### 5.2. Install Zod
+
+- [Install Zod](https://www.npmjs.com/package/zod)
+
+```bash
+npm install zod
+```
+
+and
+
+```bash
+npm install zod-validation-error
 ```
