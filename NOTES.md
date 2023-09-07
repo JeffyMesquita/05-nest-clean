@@ -191,6 +191,69 @@ export class ZodValidationPipe implements PipeTransform {
 }
 ```
 
+### 4.2. Using `@nest/config`
+
+- Run the following command to install `@nest/config`:
+
+```bash
+npm install @nestjs/config
+```
+
+- In `src` folder, create a file `env.ts` with the following content:
+
+```ts
+import { z } from 'zod';
+
+export const envSchema = z.object({
+  DATABASE_URL: z.string().url(),
+  PORT: z.coerce.number().optional().default(3333),
+});
+
+export type Env = z.infer<typeof envSchema>;
+```
+
+- In `app.module.ts` file, add the following code:
+
+```ts
+//...
+import { ConfigModule } from '@nestjs/config';
+//...
+import { envSchema } from './env';
+//...
+
+@Module({
+  imports: [
+    //...
+    ConfigModule.forRoot({
+      // using zod as a validation library
+      validate: (env) => envSchema.parse(env),
+      isGlobal: true,
+    }),
+    //...
+  ],
+  //...
+})
+
+```
+
+- For example, in `main.ts` file, you can use:
+
+```ts
+//...
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule, {
+    // logger: false
+  });
+
+  const configService = app.get<ConfigService<Env, true>>(ConfigService);
+  const port = configService.get('PORT', { infer: true });
+
+  await app.listen(port);
+}
+bootstrap();
+```
+
 ## 5. General Installation
 
 ### 5.1. Install Bcryptjs
