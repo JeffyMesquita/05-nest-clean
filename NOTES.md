@@ -265,8 +265,74 @@ npm install @nestjs/jwt @nestjs/passport
 - In `src` folder, create a folder `auth` and inside create a file `auth.module.ts` with the following content:
 
 ```ts
+import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { Env } from 'src/env';
 
+@Module({
+  imports: [
+    PassportModule,
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      global: true,
+      useFactory(config: ConfigService<Env, true>) {
+        const privateKey = config.get('JWT_PRIVATE_KEY', { infer: true });
+        const publicKey = config.get('JWT_PUBLIC_KEY', { infer: true });
+
+        return {
+          signOptions: {
+            algorithm: 'RS256',
+            allowInsecureKeySizes: true,
+          },
+          privateKey: Buffer.from(privateKey, 'base64'),
+          publicKey: Buffer.from(publicKey, 'base64'),
+        };
+      },
+    }),
+  ],
+})
+export class AuthModule {}
 ```
+
+- You need to generate a private and public key for JWT. You can use the following command:
+
+```bash
+ssh-keygen -t rsa -b 4096 -m PEM -f jwtRS256.key
+```
+
+- After, you need to generate the public key:
+
+```bash
+openssl rsa -in jwtRS256.key -pubout -outform PEM -out jwtRS256.key.pub
+```
+
+- Add the following code in the `.env` file:
+
+```env
+//...
+JWT_PRIVATE_KEY=your_private_key
+JWT_PUBLIC_KEY=your_public_key
+```
+
+- In `src/app.module.ts` file, add the following code:
+
+````ts
+//...
+import { AuthModule } from './auth/auth.module';
+//...
+
+@Module({
+  imports: [
+    //...
+    AuthModule,
+    //...
+  ],
+  controllers: [...AnyController, YourAuthController],
+  //...
+})
+
 
 ## 5. General Installation
 
@@ -276,7 +342,7 @@ npm install @nestjs/jwt @nestjs/passport
 
 ```bash
 npm install bcryptjs
-```
+````
 
 and
 
