@@ -254,6 +254,20 @@ async function bootstrap() {
 bootstrap();
 ```
 
+### 4.3. Using JWT for Auth with `@nestjs/jwt` and `@nestjs/passport`
+
+- Run the following command to install `@nestjs/jwt` and `@nestjs/passport`:
+
+```bash
+npm install @nestjs/jwt @nestjs/passport
+```
+
+- In `src` folder, create a folder `auth` and inside create a file `auth.module.ts` with the following content:
+
+```ts
+
+```
+
 ## 5. General Installation
 
 ### 5.1. Install Bcryptjs
