@@ -318,7 +318,7 @@ JWT_PUBLIC_KEY=your_public_key
 
 - In `src/app.module.ts` file, add the following code:
 
-````ts
+```ts
 //...
 import { AuthModule } from './auth/auth.module';
 //...
@@ -332,7 +332,30 @@ import { AuthModule } from './auth/auth.module';
   controllers: [...AnyController, YourAuthController],
   //...
 })
+```
 
+### 4.4. Using `@nestjs/jwt` and `@nestjs/passport` as `strategy`
+
+- In `src/auth` folder, create a file `jwt.strategy.ts` with the following content:
+
+```ts
+import { ConfigService } from '@nestjs/config';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Env } from 'src/env';
+
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor(config: ConfigService<Env, true>) {
+    const publicKey = config.get('JWT_PUBLIC_KEY', { infer: true });
+
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: Buffer.from(publicKey, 'base64'),
+      algorithms: ['RS256'],
+    });
+  }
+}
+```
 
 ## 5. General Installation
 
@@ -342,7 +365,7 @@ import { AuthModule } from './auth/auth.module';
 
 ```bash
 npm install bcryptjs
-````
+```
 
 and
 
@@ -362,4 +385,18 @@ and
 
 ```bash
 npm install zod-validation-error
+```
+
+### 5.3. Install Passport
+
+- [Install Passport](https://www.npmjs.com/package/passport)
+
+```bash
+npm install passport-jwt
+```
+
+and
+
+```bash
+npm install @types/passport-jwt -D
 ```
